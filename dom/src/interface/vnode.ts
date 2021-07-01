@@ -8,7 +8,7 @@ export interface Hooks {
 
 export type ViewType = string | ((...args: any[]) => VNode)
 
-export class VNode {
+export class VNode<T = ViewType> {
 
   key: any = null;
 
@@ -21,10 +21,10 @@ export class VNode {
   static: boolean = false;
 
   // tag - func
-  type: ViewType = null;
+  type: T = null;
 
   // 属性
-  props: Record<string, any> = null;
+  props: Record<string, any> = {};
 
   // 文本
   text: string = null;

@@ -34,10 +34,11 @@ export function createVnodeInstance(
   let vNode = createVnodeStruct();
   let children = atArray(childrens);
   vNode.type = type;
-  vNode.props = props;
-
+  vNode.props = props || {};
   let firstChild = children.shift();
-  firstChild.parentNode = vNode;
+  if (firstChild !== null && firstChild !== undefined) {
+    firstChild.parentNode = vNode;
+  }
   let curr = firstChild;
   let el = children.shift();
 
@@ -49,8 +50,8 @@ export function createVnodeInstance(
     curr = el;
     el = children.shift();
   }
-  vNode.firstChild = firstChild;
-  vNode.lastChild = curr;
+  vNode.firstChild = firstChild || null;
+  vNode.lastChild = curr || null;
   return vNode;
 }
 

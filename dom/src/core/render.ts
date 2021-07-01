@@ -2,17 +2,19 @@ import { VNode } from "../interface";
 
 
 
-let renderTree: VNode = null;
-let prevTree: VNode = null;
 
+function renderApp(node: VNode<(...args: any) => VNode>) {
 
-function renderApp(node: VNode) {
-
-  return document.createElement("div");
+  let root = node.type();
+  root.parentNode = renderTree;
+  root.prevSibling = renderTree.prevSibling;
+  root.nextSibling = renderTree.nextSibling;
+  renderTree.nextSibling = root;
+  renderTree = root;
+  return document.createElement("li");
 }
 
 function renderStatic(node: VNode) {
-
   let text = document.createTextNode(node.text);
   return text
 }
@@ -22,12 +24,20 @@ function createElement(node: VNode) {
     return renderStatic(node);
   }
   if (typeof node.type === "function") {
-    return renderApp(node);
+    return renderApp(node as VNode<(...args: any) => any>);
   }
-  return document.createElement(node.type);
+
+
+  let el = document.createElement(node.type);
+
+  for (let [key, val] of Object.entries(node.props)) {
+    el.addEventListener(key, val);
+  }
+
+  return el;
 }
 
-/* 
+/*
 c 
   o [ c
       0 : [
@@ -48,67 +58,44 @@ c
   ]
 */
 
-function getNode() {
-  let curr = workVnodeStack.pop();
 
-  if (curr.firstChild !== null) {
-    let el = curr.firstChild;
-    workVnodeStack.push(el);
-    return [el];
-  }
-  if (curr.nextSibling !== null) {
-    let el = curr.nextSibling;
-    workVnodeStack.push(el);
 
-    return [el];
-  }
-  if (curr.parentNode !== null) {
-    let p = curr.parentNode.nextSibling;
-    if (p !== null) {
-      workVnodeStack.push(p)
-    }
-    return [p];
-  }
+let renderTree: VNode = null;
+let prevTree: VNode = null;
 
-  console.log("error");
+const containerStack: (Text | HTMLElement | DocumentFragment)[] = [];
 
-}
-
-let workDummy;
-let workVnodeStack: VNode[] = [];
-let containerStack = [];
 // 深度
 function createRenderTree(container: DocumentFragment, root: VNode) {
-
-  let stack: (Text | HTMLElement | DocumentFragment)[] = [container];
-
-  let curr = root;
-
-  while (curr !== null) {
-    let con = stack[stack.length - 1]
-    let node = createElement(curr);
+  containerStack.push(container);
+  // let curr = renderTree;
+  while (renderTree !== null) {
+    let parentNode = containerStack[containerStack.length - 1]
+    let node = createElement(renderTree);
 
     // child
     let next;
-    con.appendChild(node);
-    if (curr.firstChild !== null) {
-      stack.push(node);
-      next = curr.firstChild;
-    } else if (curr.nextSibling !== null) {
-      next = curr.nextSibling;
-    } else if (curr.nextSibling === null && curr.firstChild === null) {
 
-      while (curr.parentNode !== null && curr.nextSibling === null) {
-        stack.pop()
-        curr = curr.parentNode;
+    parentNode.appendChild(node);
+
+    if (renderTree.firstChild !== null) {
+      containerStack.push(node);
+      next = renderTree.firstChild;
+    } else if (renderTree.nextSibling !== null) {
+      next = renderTree.nextSibling;
+    } else if (renderTree.nextSibling === null && renderTree.firstChild === null) {
+      while (renderTree.parentNode !== null && renderTree.nextSibling === null) {
+        containerStack.pop()
+        renderTree = renderTree.parentNode;
       }
-      next = curr.nextSibling;
+      next = renderTree.nextSibling;
     }
 
-    curr = next;
+    renderTree = next;
   }
 
-  return container
+
+  return containerStack.pop()
 }
 
 
@@ -119,10 +106,8 @@ function workLoop(work, ...args: any) {
 
 export function render(container: HTMLElement, workTree: VNode) {
 
-  let dummy = document.createDocumentFragment();
   renderTree = workTree;
+  let node = workLoop(createRenderTree, document.createDocumentFragment(), workTree)
 
-  let node = workLoop(createRenderTree, dummy, workTree)
-  console.dir(node);
   container.appendChild(node)
 }
