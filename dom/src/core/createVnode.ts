@@ -1,9 +1,11 @@
 import { createVnodeStruct, VNode } from "../interface";
 
 
-function atString(el: string) {
+function atString(el: unknown) {
   let vNode = createVnodeStruct();
-  vNode.text = el;
+
+  // @ts-ignore
+  vNode.text = `${el}`;
   vNode.static = true;
   return vNode;
 }
@@ -16,10 +18,10 @@ function atArray(list: unknown[]): VNode[] {
     let el = list[i];
     if (el instanceof Array) {
       res.push(...atArray(el));
-    } else if (typeof el === "string") {
-      res.push(atString(el));
-    } else {
+    } else if (el instanceof VNode) {
       res.push(el);
+    } else {
+      res.push(atString(el));
     }
   }
   return res;

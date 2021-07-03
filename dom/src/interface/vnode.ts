@@ -1,9 +1,18 @@
 
-
-
+export class Effect<T = (...args) => any> {
+  effect: T;
+  next: Effect = null;
+  constructor(fn?: T) {
+    this.effect = fn;
+  }
+}
+export function createEffect(fn) {
+  return new Effect(fn);
+}
 
 export interface Hooks {
-  onMountd?(): void
+  mountd?: Effect
+  state?: Effect<any>
 }
 
 export type ViewType = string | ((...args: any[]) => VNode)

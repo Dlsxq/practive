@@ -1,9 +1,23 @@
-import { render } from "./core/render";
-import { createNode } from "./global";
+import { createNode, render, onMountd, useState } from "./global";
 
+
+let a = 10;
 
 function App() {
-  return createNode("div", null, "div-app")
+  let [a, setState] = useState(10);
+
+  onMountd(() => {
+    console.log("挂在effct");
+  })
+
+  return createNode("button", {
+    click: () => {
+      // setState(30)
+      // console.log("000");
+      setState(20)
+
+    }
+  }, "div-app", `-------->${a}`)
 }
 
 let jsx = createNode(
@@ -13,9 +27,7 @@ let jsx = createNode(
   [
     createNode('li', {}, "li-text"),
     createNode('li', {
-      click: e => {
-        console.log("++");
-      }
+
     }, "li-tex2t"),
     createNode(App, null, '0'),
     createNode('a', {}, "soan-text"),
