@@ -1,40 +1,46 @@
-import { createNode, render, onMountd, useState } from "./global";
+import { createNode, } from "./global";
 
 
 let a = 10;
 
 function App() {
-  let [a, setState] = useState(10);
-
-  onMountd(() => {
-    console.log("挂在effct");
-  })
 
   return createNode("button", {
     click: () => {
       // setState(30)
       // console.log("000");
-      setState(20)
 
     }
   }, "div-app", `-------->${a}`)
 }
 
-let jsx = createNode(
+let jsx = () => createNode(
   'div',
   {},
+  a,
   createNode('p', {}, 'pstring', createNode('span', null, "222")),
   [
     createNode('li', {}, "li-text"),
     createNode('li', {
 
     }, "li-tex2t"),
-    createNode(App, null, '0'),
+    createNode(App, null),
     createNode('a', {}, "soan-text"),
     // createNode('li', {}, "listin"),
     "text------->"
   ],
-
 )
+
+
+
+console.log(jsx());
+
+setTimeout(() => {
+  a = 30;
+  console.log(jsx());
+
+}, 1000);
+
+
 let c = document.getElementById("container")
-render(c, jsx)
+

@@ -15,40 +15,30 @@ export interface Hooks {
   state?: Effect<any>
 }
 
-export type ViewType = string | ((...args: any[]) => VNode)
-
-export class VNode<T = ViewType> {
-
+export type ViewType = string | ((...args: any[]) => Element$)
+export class Element$<T = ViewType> {
   key: any = null;
 
-  hooks: Hooks = {}
-
-  // tag - func
-  miniType: string = null;
-
-  // 是否静态
   static: boolean = false;
-
-  // tag - func
   type: T = null;
-
-  // 属性
   props: Record<string, any> = {};
 
   // 文本
   text: string = null;
-  firstChild: VNode = null;
-  lastChild: VNode = null;
+  children: any[] = []
+}
 
-  // 父节点
-  parentNode: VNode = null;
-  // 下一个兄弟元素
-  nextSibling: VNode = null;
-  prevSibling: VNode = null;
+export function createElement() {
+  return new Element$()
 }
 
 
 
-export function createVnodeStruct() {
-  return new VNode()
+export class Vnode {
+  originalElement: Element$ = null;
+
+  parent: Vnode = null;
+  nextSibing: Vnode = null;
+  prevSibing: Vnode = null;
+  firstChild: Vnode = null;
 }
