@@ -1,28 +1,18 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ES2020",
-      "ESNext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": false,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
     "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
+    "strict": true,
+    "sourceMap": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "esModuleInterop": true,
     "noEmit": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "src/**/*.ts",
-      "src/**/*.tsx"
-    ],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true
   },
-  "include": ["./src/**/*.ts","./src/**/*.tsx","./src/**/*.js"]
+  "include": ["./src"]
 }
