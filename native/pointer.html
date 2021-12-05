@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pointer Drag</title>
+  <style>
+    body {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-content: center;
+    }
+
+    .container {
+      width: 1000px;
+      height: 300px;
+      outline: 1px solid red;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .chidlren {
+      display: flex;
+      gap: 8px;
+      height: 250px;
+      outline: 1px solid brown;
+      padding: 6px;
+    }
+
+    .chidlren div {
+      width: 200px;
+      outline: 1px dashed blue;
+      height: 100%;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <section class="chidlren">
+      <div>11</div>
+      <div>21</div>
+      <div>31</div>
+      <div>41</div>
+      <div>51</div>
+      <div>61</div>
+      <div>71</div>
+      <div>81</div>
+      <div>91</div>
+      <div>101</div>
+    </section>
+  </div>
+</body>
+
+
+<script>
+  const dragTarget = document.querySelector(".chidlren");
+
+  const container = document.querySelector(".container");
+
+  function setStyle(nextX = 0, nextY = 0) {
+    dragTarget.style.setProperty("transform", `translate(${nextX}px, ${nextY}px)`);
+  }
+
+  let startX = 0, startY = 0;
+
+  function onMouseMove(evl) {
+
+    setStyle(evl.clientX - startX);
+  }
+
+  dragTarget.addEventListener("pointerdown", evl => {
+    startX = evl.clientX - startX;
+    startY = evl.clientY - startY;
+    dragTarget.addEventListener("pointermove", onMouseMove);
+    evl.target.setPointerCapture(evl.pointerId)
+  });
+
+  dragTarget.addEventListener("pointerup", evl => {
+    startX = evl.clientX - startX;
+    startY = evl.clientY - startY;
+    dragTarget.removeEventListener("pointermove", onMouseMove);
+    evl.target.releasePointerCapture(evl.pointerId)
+  });
+
+</script>
+
+</html>
