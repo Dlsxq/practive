@@ -1,6 +1,6 @@
 import { RouteObject } from "react-router-dom";
-import Entry from "~/views/entry";
-import Platform from "~/views/platform";
+import Entry from "~/layout/entry";
+import Platform from "~/layout/platform";
 
 
 

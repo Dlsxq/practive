@@ -17,11 +17,16 @@ export interface ActiveApp {
     x: number;
     y: number;
   };
+  windowSize:{
+    w:number;
+    h:number;
+  }
   bindWindow: any[];
   themeStyle?: {
     background?: string;
   };
   priority: number;
+  viewerState:any
 }
 
 const activeAppRecord = new WeakMap<Application, ActiveApp>();
@@ -108,9 +113,9 @@ export function bindForAppChangeEvent(isExistActive: boolean) {
       return;
     }
     (un ?? (un = [])).push(
-      appChannel.bindListener(AppChannelEventType.hidden, appHiddenListener),
-      appChannel.bindListener(AppChannelEventType.cancel, appCancelListener),
-      appChannel.bindListener(AppChannelEventType.fullScreen, appFullScreenListener),
+      appChannel.subscribe(AppChannelEventType.hidden, appHiddenListener),
+      appChannel.subscribe(AppChannelEventType.cancel, appCancelListener),
+      appChannel.subscribe(AppChannelEventType.fullScreen, appFullScreenListener),
     );
     return;
   }
@@ -134,8 +139,12 @@ export function initialActiveAppInfo(app: Application): ActiveApp {
       x: app.position.x,
       y: app.position.y
     },
+    windowSize:{
+      ...app.windowSize
+    },
     bindWindow: [],
-    priority: 10
+    priority: 10,
+    viewerState:null
   };
 }
 

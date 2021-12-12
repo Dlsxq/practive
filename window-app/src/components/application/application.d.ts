@@ -3,7 +3,7 @@
 declare interface Application {
   appId: any;
   appName: string;
-  readonly:boolean
+  readonly: boolean;
   appIcon: string;
 
   themeStyle: {
@@ -19,4 +19,15 @@ declare interface Application {
     x: number;
     y: number;
   };
+}
+
+
+
+declare interface Viewer {
+  next(): void;
+  // prev?(): void;
+  // pushState?: any;
+  // popState: any;
+  // memo(): void;
+  // getMemo(): any | null;
 }

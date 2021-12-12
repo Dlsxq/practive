@@ -5,17 +5,25 @@ import { intoIsLoad } from "~/store/entry";
 import "./platform.less";
 import PlatformFooter from "../footer";
 import AppStartUp from "~/components/appStartUp";
-import {
-  getActiveAppList, getAppInstanceList, initialActiveAppInfo, pushActiveApp
-} from "~/store";
 import ActiveAppWindow from "../window";
 import AppWindow from "~/components/appWindow";
 import { appChannel, AppChannelEventType } from "~events/";
+import { 
+  Center,
+   Box,
+    Stack, HStack, VStack ,
+    Menu,MenuButton,MenuList,MenuItem,
+    
+  } from "@chakra-ui/react";
+import {
+  getActiveAppList, getAppInstanceList, initialActiveAppInfo, pushActiveApp
+} from "~/store";
 
 
 interface IProps {
 
 }
+
 
 const Platform: FC<IProps> = (props) => {
 
@@ -38,7 +46,7 @@ const Platform: FC<IProps> = (props) => {
         return;
       }
 
-      let un = appChannel.bindListener(AppChannelEventType.appChange, (app, nextAppInfo) => {
+      let un = appChannel.subscribe(AppChannelEventType.appChange, (app, nextAppInfo) => {
         setActiveAppWindowList(getActiveAppList());
       });
 
@@ -82,7 +90,7 @@ const Platform: FC<IProps> = (props) => {
       {/* 活跃的平台  */}
       <ActiveAppWindow >
         {activeAppNodeList}
-        Platform
+
       </ActiveAppWindow>
       <PlatformFooter >
         {platformApp}

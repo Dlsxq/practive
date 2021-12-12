@@ -14,8 +14,8 @@ createAppInstance(setUp, {
     y: 300,
   },
   windowSize: {
-    w: 0,
-    h: 0
+    w: 700,
+    h: 900
   },
   themeStyle: {}
 });

@@ -20,31 +20,27 @@ interface Emit<T> {
 
 class EventControll<EventType, Listener extends ((...args: any[]) => any)> {
 
-  private eventStore = new Map<EventType, Set<Listener>>();
+  private pendingUnsubscribe: Function[] = null;
+  private readonly eventStore = new Map<EventType, Set<Listener>>();
+
   private readonly observer: InitEventControll<EventType>["observer"];
+  private readonly channel: MessagePort;
 
-  private port: MessagePort;
-
-  public eventType: EventType;
-
-
-  constructor(
-    eventInit?: InitEventControll<EventType>
-  ) {
-
+  constructor(eventInit?: InitEventControll<EventType>) {
     this.observer = eventInit?.observer;
 
     let ch = new MessageChannel();
-    this.port = ch.port1;
+    this.channel = ch.port1;
+    
     ch.port2.addEventListener("message", this.onPort.bind(this));
     ch.port2.start();
   }
 
   private onPort(evl: MessageEvent<{ type: EventType, argv: Parameters<Listener>; }>) {
-    this.emitEvent(evl.data.type, evl.data.argv);
+    this.run(evl.data.type, evl.data.argv);
   }
 
-  public bindListener(type: EventType, listener: Listener) {
+  public subscribe(type: EventType, listener: Listener) {
     let listeners = this.eventStore.get(type);
     if (listeners === undefined) {
       this.eventStore.set(type, listeners = new Set());
@@ -52,43 +48,54 @@ class EventControll<EventType, Listener extends ((...args: any[]) => any)> {
 
     listeners.add(listener);
 
-    function unEventListener() {
+    let un = () => {
+
+      // 防止重复
+      let unsubscribe = un;
+      un = null;
+
+      if (Array.isArray(this.pendingUnsubscribe)) {
+        this.pendingUnsubscribe.push(unsubscribe);
+        return;
+      }
+
       listeners.delete(listener);
 
       // 在listeners为空时清除set
       if (listeners.size === 0) {
         this.eventStore.delete(type);
       }
-    }
+    };
 
-    return unEventListener.bind(this);
+    return un;
   }
 
   public once(type: EventType, listener: Listener) {
 
-    const onceRuning = (...args: any[]) => {
+    const once = (...args: any[]) => {
       listener(...args);
       un();
       return null;
     };
 
-    let un = this.bindListener(type, onceRuning as Listener);
+    let un = this.subscribe(type, once as Listener);
   }
 
-  private emitEvent(type: EventType, argv: Parameters<Listener>[]) {
+  private run(type: EventType, argv: Parameters<Listener>[]) {
 
     let listenerSet = this.eventStore.get(type);
 
     if (!(listenerSet instanceof Set)) {
-      console.warn(`type:${type} 事件暂时没有订阅者`);
+      console.warn(`EventControll: ${type}类型事件暂时没有订阅者`);
       return;
     }
 
-    let pendingListeners = Array.from(listenerSet);
-    let pendingDeleteListener = [] as Listener[];
+    let listeners = Array.from(listenerSet);
+    // ? 多个事件类型，使用一个数组会有问题吗？
+    let pendingUnsubscribe = this.pendingUnsubscribe = [];
 
-    for (let i = 0, len = pendingListeners.length;i < len;i++) {
-      let listener = pendingListeners[i];
+    for (let i = 0, len = listeners.length;i < len;i++) {
+      let listener = listeners[i];
 
       try {
         let temp = listener(...argv);
@@ -99,35 +106,42 @@ class EventControll<EventType, Listener extends ((...args: any[]) => any)> {
           return;
         }
         if (ob === PublishFlow.delete) {
-          pendingDeleteListener.push(listener);
+          pendingUnsubscribe.push(listener);
         }
       } catch (exx) {
-        console.log(`EventControll: ${type} ->  执行${listener.name} 时发生错误`, exx);
+        console.log(`EventControll: ${type} ->  执行${listener.name} 时发生错误\r\n`, exx);
       }
     }
 
-    pendingDeleteListener.forEach(el => {
-      listenerSet.delete(el);
-    });
+    while (pendingUnsubscribe.length > 0) {
+      pendingUnsubscribe.shift()();
+    }
+
+    // clean
+    pendingUnsubscribe = this.pendingUnsubscribe = null;
   }
 
   dispatch(type: EventType | Emit<EventType>, ...args: Parameters<Listener>) {
 
+    // string | object
+  
+    // 同步派发
     if (typeof type === "string") {
-      this.emitEvent(type, args);
+      this.run(type, args);
       return;
     }
 
     let emitType: EmitType = (type as Emit<any>).emitType, changeType = (type as Emit<any>).type;
-
+    
     switch (emitType) {
       case "async":
         // ! async 的事件会把数据拷贝一份
-        return this.port.postMessage({ type: changeType, argv: args });
+        return this.channel.postMessage({ type: changeType, argv: args });
       default: {
-        return this.emitEvent(changeType, args);
+        return this.run(changeType, args);
       }
     }
+
   }
 
 

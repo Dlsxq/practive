@@ -1,10 +1,11 @@
-import { Component, ReactNode, MouseEvent, PointerEvent, CSSProperties } from "react";
+import { Component, ReactNode, MouseEvent, PointerEvent, CSSProperties, createElement } from "react";
 import computeClass from "classnames";
 import "./app.less";
 import FontIcon from "../fontIcon";
 import { appChannel, AppChannelEventType } from "~/events";
 import { AppLevelPriority, ActiveAppStatus, computeActiveWindowPriority, getActiveAppInfo, ActiveApp, setRootTopApplication, isTopApp } from "~/store";
 import { debounce } from "~/utils/debounce";
+import { View, getViewFromAppId } from "~/store/viewer";
 
 
 
@@ -37,9 +38,16 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
 
   private readonly appInstance: Application;
   private readonly appChildren: ReactNode;
+  private readonly view: View;
   // private readonly winSource: ActiveWindow;
 
   private windownPosition: WindowPostion;
+  private winowSize:{
+    h: number;
+    w: number;
+  };
+
+
   private activeApp: ActiveApp;
   private containerElement: HTMLElement;
 
@@ -51,6 +59,10 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
     // @ 保持引用传递
     this.activeApp = getActiveAppInfo(this.appInstance);
     this.windownPosition = this.activeApp.position;
+    this.winowSize = this.activeApp.windowSize;
+
+    this.view = getViewFromAppId(this.appInstance.appId);
+
 
     this.state = {
       position: null,
@@ -63,7 +75,7 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
   componentDidMount(): void {
     this.containerElement.addEventListener("fullscreenchange", this.fullscreenChangeMoniter);
     this.changeRootElementLevel();
-    appChannel.bindListener(AppChannelEventType.priority, this.changeRootElementLevel.bind(this));
+    appChannel.subscribe(AppChannelEventType.priority, this.changeRootElementLevel.bind(this));
   }
 
   componentWillUnmount(): void {
@@ -202,13 +214,22 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
 
   changeRootElementLevel() {
     this.containerElement.style.setProperty("z-index", String(this.activeApp.priority));
-    this.setState({});
+    this.forceUpdate();
   }
 
+  // ---------------------------view----------------------------------------
+  next = () => {
+    this.view.next();
+    this.forceUpdate();
+  };
 
-  // 所有的hidde优先级下降
+  prev = () => {
+    this.view.prev();
+    this.forceUpdate();
+  };
+
+
   render(): ReactNode {
-
     const { position, appStatus, isElementFullScreen } = this.state;
 
     let moveStyle: CSSProperties = {
@@ -223,9 +244,14 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
       };
     }
 
+    let size = {width:this.winowSize.w,height:this.winowSize.h};
+    let style = Object.assign(size,moveStyle)
+
+    const View = this.view.currentData;
+
     return (
       <section
-        style={moveStyle}
+        style={style}
         onClick={this.containerClick}
         onTransitionEnd={this.transitionend}
         className={computeClass(
@@ -267,7 +293,7 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
           </div>
         </header>
 
-        {this.appInstance.appName}
+        <View next={this.next} />
       </section>
     );
   }
