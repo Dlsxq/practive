@@ -25,7 +25,7 @@ declare interface Application {
 
 declare interface Viewer {
   next(): void;
-  // prev?(): void;
+  prev(): void;
   // pushState?: any;
   // popState: any;
   // memo(): void;

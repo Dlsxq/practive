@@ -23,6 +23,6 @@ export function registerViewer(appId: string, v: RegisterView) {
 
 }
 
-export function getViewFromAppId(appId: string): View {
+export function getViewByAppId(appId: string): View {
   return viewer.get(appId);
 }

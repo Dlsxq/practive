@@ -35,6 +35,7 @@ export class LinkedList<T> {
 
   push(data: T) {
     let nextNode = node(data);
+    
     if (this.header === null) {
       this.header = nextNode;
       this.current = this.header;

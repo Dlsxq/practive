@@ -5,13 +5,18 @@ import FontIcon from "../fontIcon";
 import { appChannel, AppChannelEventType } from "~/events";
 import { AppLevelPriority, ActiveAppStatus, computeActiveWindowPriority, getActiveAppInfo, ActiveApp, setRootTopApplication, isTopApp } from "~/store";
 import { debounce } from "~/utils/debounce";
-import { View, getViewFromAppId } from "~/store/viewer";
+import { View, getViewByAppId } from "~/store/viewer";
 
 
 
 interface WindowPostion {
   x: number;
   y: number;
+}
+
+interface WindowSize {
+  h: number;
+  w: number;
 }
 
 interface AppContainerProps {
@@ -42,11 +47,7 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
   // private readonly winSource: ActiveWindow;
 
   private windownPosition: WindowPostion;
-  private winowSize:{
-    h: number;
-    w: number;
-  };
-
+  private winowSize: WindowSize;
 
   private activeApp: ActiveApp;
   private containerElement: HTMLElement;
@@ -61,7 +62,7 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
     this.windownPosition = this.activeApp.position;
     this.winowSize = this.activeApp.windowSize;
 
-    this.view = getViewFromAppId(this.appInstance.appId);
+    this.view = getViewByAppId(this.appInstance.appId);
 
 
     this.state = {
@@ -83,7 +84,10 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
   }
 
 
-  // ------------------------------------拖拽--------------------------------
+  // / ------------------------------------拖拽--------------------------------
+
+  // todo: 拖拽拆分出去
+  
   startPosition: WindowPostion = null;
   mouseMove = null;
 
@@ -143,10 +147,9 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
     (evl.target as any).releasePointerCapture(evl.pointerId);
     this.setState({ position: null });
   };
-  // ------------------------------------拖拽--------------------------------
 
 
-  // -------------------------------------Active-----------------------------
+  /// -------------------------------------Active-----------------------------
   transitionend = undefined;
   isEnd = false;
   transitionendListener = () => {
@@ -196,12 +199,12 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
     this.state.isElementFullScreen ? document.exitFullscreen() : this.containerElement.requestFullscreen();
   });
 
-  // --------------------------操作------------------------------
+  /// --------------------------操作------------------------------
 
 
   bindHtmlElement = (el) => this.containerElement = el;
 
-  // ------------------------compute priority--------------------------
+  /// ------------------------compute priority--------------------------
 
   containerClick = () => {
     if (isTopApp(this.appInstance)) {
@@ -217,7 +220,7 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
     this.forceUpdate();
   }
 
-  // ---------------------------view----------------------------------------
+  /// ---------------------------view----------------------------------------
   next = () => {
     this.view.next();
     this.forceUpdate();
@@ -227,6 +230,24 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
     this.view.prev();
     this.forceUpdate();
   };
+
+  /// --------------------------children state---------------------------------
+
+  pushState() {
+
+  }
+
+  popState() {
+
+  }
+
+  memo(){
+
+  }
+  getMemo() {
+
+  }
+
 
 
   render(): ReactNode {
@@ -244,11 +265,12 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
       };
     }
 
-    let size = {width:this.winowSize.w,height:this.winowSize.h};
-    let style = Object.assign(size,moveStyle)
+    let size = { width: this.winowSize.w, height: this.winowSize.h };
+    let style = Object.assign(size, moveStyle);
 
-    const View = this.view.currentData;
-
+    //! 视图可能为空
+    const View = this.view?.currentData ?? (() => <div>123</div>);
+    
     return (
       <section
         style={style}
@@ -293,7 +315,7 @@ class AppWindow extends Component<AppContainerProps, AppPrivateState> {
           </div>
         </header>
 
-        <View next={this.next} />
+        <View next={this.next} prev={this.prev} />
       </section>
     );
   }
