@@ -4,6 +4,7 @@ import "./entry.less";
 import Terminal, { CommandProp } from "~/components/terminal";
 import { useNavigate } from "react-router-dom";
 import { setLogin } from "~/store/entry";
+// import img from "./entryImage.jpg";
 
 
 

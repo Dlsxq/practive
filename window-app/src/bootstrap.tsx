@@ -15,19 +15,22 @@ import "./views";
 */
 function BootStrap() {
   let routerElement = useRoutes(routerConf);
+  console.log(<div>11223</div>);
 
+  /* eslint-disable-next-line */
+  
   return (
     <StrictMode>
       <ChakraProvider>
+
       <BrowserRouter>
         {routerElement}
       </BrowserRouter>
       </ChakraProvider>
+
     </StrictMode>
   );
 }
-
-
 
 const container = document.getElementById("bootstrap");
 

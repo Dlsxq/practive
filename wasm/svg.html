@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zn_CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <style>
+    #baseGraph {
+      border: 1px solid deeppink;
+      width: 500px;
+      height: 500px;
+    }
+  </style>
+</head>
+
+<body>
+  <span>y</span>
+  <svg id="baseGraph" xmlns="http://www.w3.org/2000/svg">
+    
+    <defs>
+      <marker id="markerArrow" markerwidth="13" markerheight="13" refx="2" refy="6" orient="auto">
+        <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #ccadad;"></path>
+    </marker>
+    </defs>
+    
+
+
+
+
+    <line x1="10" y1="100" x2="200" y2="100"  stroke="red" marker-end="url(#markerArrow)"/>
+
+
+
+
+    <text x="10" y="25" fill="red"> SVG</text>
+
+    <path id="lineAB" d="m 100 350 l 150 -300" stroke="red"
+    stroke-width="3"  />
+
+
+ 
+
+    <!-- <path d="C 50,0 50,100 100,100 C 50,0 50,-100 100,-100" stroke="orange" ></path> -->
+
+    <path
+    d="
+    M 10 150
+    h 150 0
+    v 150 0
+    h 150 0
+    v 0 -150
+    l -50 0
+    l 0 100
+    h 100 0
+    L 400 50
+    "
+    stroke="blue"
+    fill="none"
+    marker-end="url(#markerArrow)"
+    >
+    
+    </path>
+
+  </svg>
+x
+
+
+</body>
+
+</html>

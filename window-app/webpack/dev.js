@@ -1,7 +1,12 @@
-import webpack from "webpack";
-import WebpackDevServer from "webpack-dev-server";
-import { merge } from "webpack-merge";
-import { commonConf, getWebpackModuleConf, getWebpackResolver, getWebpackPlugins, getDevMizationAndCache } from "./webpack.config.js";
+const webpack = require("webpack");
+const WebpackDevServer = require("webpack-dev-server");
+const { merge } = require("webpack-merge");
+
+const configFactory = require("./webpack.config.js");
+
+
+
+const { commonConf, getWebpackModuleConf, getWebpackResolver, getWebpackPlugins, getDevMizationAndCache } = configFactory("production");
 
 const devConfig = merge(
   commonConf,
@@ -27,16 +32,15 @@ function devServer() {
         progress: false
       },
       hot: true,
-      historyApiFallback: true
+      historyApiFallback: true,
+      // static:
     }
   );
 
   server.start();
-
-
 }
 
 
 devServer();
 
-export default devConfig;
+// export default devConfig;

@@ -53,7 +53,7 @@ class EventControll<EventType extends string | number, Listener extends ((...arg
     // ? 多个事件类型，使用一个数组会有问题吗？
     let pendingUnsubscribe = this.pendingUnsubscribe[type] = [];
 
-    for (let i = 0, len = listeners.length; i < len; i++) {
+    for (let i = 0, len = listeners.length;i < len;i++) {
       let listener = listeners[i];
 
       try {
