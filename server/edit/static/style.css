@@ -1,0 +1,93 @@
+* {
+  box-sizing: border-box;
+  margin    : 0;
+  padding   : 0;
+}
+
+html {
+  user-select: none;
+}
+
+
+.edit-header {
+  height: 60px;
+  border: 1px solid #e8ebed82;
+
+  margin-bottom: 24px;
+
+}
+
+.edit-header .center-header {
+
+  list-style-type : none;
+  margin          : 0 auto;
+  width           : 80%;
+  background-color: #a8b3b343;
+  padding         : 0 20px;
+}
+
+ .center-header li {
+  display         : inline-block;
+  width           : 144px;
+  flex            : 1 1 0;
+  max-width       : 200px;
+  background-color: #5492c9bf;
+  text-align      : center;
+  border-radius   : 8px;
+  cursor          : pointer;
+  padding         : 1em 0;
+}
+
+.edit-main {
+  box-sizing: border-box;
+  margin    : 0 auto;
+  width     : 70vw;
+  height    : 90vh;
+
+  display  : flex;
+  flex-wrap: wrap;
+  gap      : 8px;
+}
+
+.edit-parent-style {
+  height    : 100%;
+  width     : 100%;
+  border    : none;
+  padding   : 20px;
+  box-sizing: border-box;
+  box-shadow: 0 0 5px 2px #9089894c;
+
+  flex: 1;
+
+}
+
+.center-hader-select {
+  position: relative;
+}
+
+.center-hader-select:hover .down-menu-save{
+  visibility: visible;
+}
+
+.down-menu-save {
+
+  position: absolute;
+  top: 57px;
+  padding-top: 6px;
+  visibility: hidden;
+
+
+  transition: visibility 0.2s;
+}
+
+.down-menu-save  li {
+  display: block;
+  border-radius: 0;
+  margin-bottom: 4px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.down-menu-save  li:hover {
+  background-color: rgba(75, 80, 231, 0.579);
+  color: #fff;
+}
