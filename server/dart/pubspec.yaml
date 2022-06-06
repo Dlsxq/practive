@@ -1,8 +1,0 @@
-name: web
-
-environment:
-    sdk: ^2.15.0
-
-dependencies:
-  serve:
-    path: ./web-serve
