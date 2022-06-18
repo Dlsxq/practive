@@ -1,0 +1,79 @@
+<!-- <script src="./main.ts" type="module"></script> -->
+https://docs.wasmer.io/integrations/js
+
+<script>
+
+  function main() {
+
+    function consoleLogString(offset) {
+      // var bytes = new Uint8Array(memory.buffer, offset, length);
+      // var string = new TextDecoder('utf8').decode(bytes);
+      // console.log(string);
+      console.log("log->", offset);
+    }
+
+/* 
+function insertSort(list: number[]) {
+  
+  for (let i = 1, len = list.length; i < len; i++) {
+    let el = list[i];
+    let j = i - 1;
+    
+    while (j > 0 && list[j] > el) {
+      list[j + 1] = list[j];
+      j--;
+    }
+    
+    list[j + 1] = el;
+  }
+  
+  return list;
+} */
+
+
+    const memory = new  WebAssembly.Memory({initial:10, maximum:100});
+
+    let importObj = { js: { log: consoleLogString } };
+
+    fetch("/module.wasm")
+      .then(r => r.arrayBuffer())
+      .then(r => new WebAssembly.Instance(new WebAssembly.Module(r), importObj))
+      .then(b => (console.log(b), b.exports))
+      .then(me => {
+        console.log(me);
+        let u32 = new DataView(me.memory.buffer);
+
+        u32.setUint32(0, 10, true);
+        // u32.setUint32(1, 11, true);
+        // u32.setUint32(2, 12, true);
+        // u32.setUint32(3, 13, true);
+
+    //    let dataView =  new DataView(me.memory.buffer);
+    // dataView.setUint32(0, 90, true);
+
+        globalThis.memory = memory;
+        globalThis.m = me;
+      })
+
+
+    // fetch("/module.wasm")
+    //   .then(r => r.arrayBuffer())
+    //   .then(b => WebAssembly.instantiate(b, importObj))
+    //   .then(m => m.instance.exports)
+    //   .then(me => {
+    //     // console.log(me.foo(1, 4));
+    //     console.log(me);
+    //     globalThis.m = me;
+    //   })
+
+  }
+  try {
+
+    main();
+
+  } catch (exx) {
+    console.log("错误");
+    console.log(exx);
+  }
+
+</script>

@@ -2,11 +2,11 @@ const http = require("http");
 const fs = require("fs");
 const wat = require("wabt");
 
-const inputSourceTextPath = "./sourceText.wat";
+const inputSourceTextPath = "./wasm/sourceText.wat";
 
 
 
-let convert;
+let gloC;
 
 
 http.createServer((req, res) => {
@@ -15,16 +15,22 @@ http.createServer((req, res) => {
 
   console.log(`url:->{ ${pathUri} }<-`);
 
-
   function send(convert) {
+    gloC = convert;
+
     try {
-      res.end(convert.parseWat(
+      let buf = gloC.parseWat(
         inputSourceTextPath,
         fs.readFileSync(inputSourceTextPath, "utf-8")
-      ).toBinary({canonicalize_lebs:true}).buffer);
+      );
+
+      let r = Buffer.from(buf.toBinary({}).buffer);
+
+
+      res.end(r);
     } catch (exx) {
       console.log(exx);
-      fs.createReadStream("./module.wasm").pipe(res);
+      res.end("error");
     }
   }
 
@@ -35,9 +41,10 @@ http.createServer((req, res) => {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       return fs.createReadStream("./main.html").pipe(res);
     case "/module.wasm": {
-      if (typeof convert === "object") {
+
+      if (typeof gloC === "object") {
         return send(
-          convert
+          gloC
         );
       }
 
