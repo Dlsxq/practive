@@ -42,13 +42,11 @@ class User implements ReadBuilder, WriteBuilder {
 }
 
 main(List<String> args) {
-  /* ..fileHandler("/static/index.html", (reader, writer, getFile)async  {
-      
-      return;
-    })
-     */
-  Serve()
-    ..use(StaticServe("/static"))
+
+  Router router = Router();
+  StaticServe staticServe = StaticServe("/static");
+
+  router
     ..get("/", (req, res) {
       res.text("foo");
     })
@@ -68,6 +66,10 @@ main(List<String> args) {
       await File(fileName).writeAsBytes(fileBytes);
 
       writer.json({"message": "success", "code": 200});
-    })
+    });
+
+  Serve()
+    ..use(router)
+    ..use(staticServe)
     ..listen(4096);
 }

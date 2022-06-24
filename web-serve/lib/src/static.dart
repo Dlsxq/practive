@@ -3,7 +3,7 @@ import "package:serve/src/middware.dart";
 import 'package:serve/src/reader.dart';
 import 'package:serve/src/write.dart';
 
-final extFileNamemaps = {
+final extFileNameMaps = {
   "html": ContentType("text", "html", charset: "utf-8"),
   "css": ContentType("text", "css", charset: "utf-8"),
   "js": ContentType("application", "javascript", charset: "utf-8"),
@@ -33,23 +33,32 @@ final extFileNamemaps = {
   "otf": ContentType("font", "otf"),
 };
 
-_extFileNameToheader(HttpWriter write, ext) {
-  var hev = extFileNamemaps[ext];
+_extMediaTypeOfFile(HttpWriter write, ext) {
+  var hev = extFileNameMaps[ext];
   write.headers.contentType = hev;
 }
 
 class StaticServe implements MiddlewareStruct {
-  String directory = "public";
-  late String _staticPath = StaticServe.getCurrentScriptDirectory();
+  late String _rootPath = StaticServe.getCurrentScriptDirectory();
   late final RegExp _prefix;
+  late final String _cache;
+  late final String _directory;
 
   // todo 设置文件
-  StaticServe(String prefix, [String? staticPath]) {
-    if (staticPath != null) {
-      this._staticPath = staticPath;
+  StaticServe(dynamic prefix,
+      {String? rootPath, String? cache, String? directory}) {
+    if (rootPath != null) {
+      this._rootPath = rootPath;
     }
 
-    this._prefix = RegExp("^" + prefix);
+    if (prefix is RegExp) {
+      this._prefix = prefix;
+    } else if (prefix is String) {
+      this._prefix = RegExp("^" + prefix);
+    }
+
+    this._cache = cache ?? "max-age=3000";
+    this._directory = directory ?? "public";
   }
 
   static String getCurrentScriptDirectory() {
@@ -57,7 +66,7 @@ class StaticServe implements MiddlewareStruct {
   }
 
   String _buildFullPath(String path) {
-    return "${this._staticPath}/${this.directory}${path.replaceFirst(this._prefix, '')}";
+    return "${this._rootPath}/${this._directory}${path.replaceFirst(this._prefix, '')}";
   }
 
   Map<
@@ -89,7 +98,7 @@ class StaticServe implements MiddlewareStruct {
     if (!path.startsWith(this._prefix)) {
       return;
     }
-    
+
     var fullPath = this._buildFullPath(path);
     var handler = this._fileHandler[path];
 
@@ -101,22 +110,27 @@ class StaticServe implements MiddlewareStruct {
     var fileStream = await this._getFile(fullPath);
 
     if (fileStream == null) {
+      fileStream = await this._getFile(this._buildFullPath("index.html"));
+    }
+    if (fileStream == null) {
       writer.text(fullPath);
-      writer.text("is not a single file");
+      writer
+          .html("<h1 style=\"text-align: center\" >is not a single file</h1>");
       throw MiddleStopProcessRequestError(404);
     }
+
     // 获取扩展名
     var ext = path.substring(path.lastIndexOf(".") + 1);
 
+    // 写入请求头， 文件的媒体类型
     if (ext.isNotEmpty) {
-      _extFileNameToheader(writer, ext);
+      _extMediaTypeOfFile(writer, ext);
     } else {
       writer.headers.contentType = ContentType.text;
     }
 
     //>  增加缓存
-    writer.headers.set(HttpHeaders.cacheControlHeader, "max-age=3000");
-
+    writer.headers.set(HttpHeaders.cacheControlHeader, this._cache);
 
     writer.writeStream(fileStream);
     // await writer.flush();

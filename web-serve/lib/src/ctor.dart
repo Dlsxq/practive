@@ -1,6 +1,4 @@
 import "dart:io";
-import "package:serve/src/router.dart";
-import "package:serve/src/static.dart";
 import "package:serve/src/middware.dart";
 import "package:serve/src/logger.dart";
 import "package:serve/src/reader.dart";
@@ -11,25 +9,14 @@ mixin Base {
 }
 
 class Serve with Base {
-  Router _router = Router();
   dynamic _ip = InternetAddress.anyIPv4;
 
 
   Serve() {
-    this._middleware.use(_router);
     this._middleware.use(Logger());
   }
 
   late final HttpServer _server;
-  late final StaticServe staticServe;
-
-  void get(String path, RouterHandler handler) {
-    this._router.get(path, handler);
-  }
-
-  void post(String path, RouterHandler handler) {
-    this._router.post(path, handler);
-  }
 
   void use(MiddlewareStruct middleware) {
     this._middleware.use(middleware);
@@ -74,7 +61,7 @@ class Serve with Base {
       binding(port, _server.address);
     } else {
       print(
-          "server started! \r\nnetwork : http://${_server.address.host}:$port");
+          "server startup! \r\nnetwork : http://${_server.address.host}:$port");
     }
 
     await for (HttpRequest req in _server) {
