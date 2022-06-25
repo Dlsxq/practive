@@ -61,7 +61,7 @@ class Serve with Base {
       binding(port, _server.address);
     } else {
       print(
-          "server startup! \r\nnetwork : http://${_server.address.host}:$port");
+          "server startup! \r\nlistener: http://${_server.address.host}:$port");
     }
 
     await for (HttpRequest req in _server) {

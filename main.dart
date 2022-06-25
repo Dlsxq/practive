@@ -42,13 +42,14 @@ class User implements ReadBuilder, WriteBuilder {
 }
 
 main(List<String> args) {
-
   Router router = Router();
   StaticServe staticServe = StaticServe("/static");
 
   router
-    ..get("/", (req, res) {
-      res.text("foo");
+    ..post("/", (req, res) async {
+      var p = await req.readString();
+      var id = req.query["id"];
+      res.write("response payload -> $p  query: $id");
     })
     ..post("/form", (reader, writer) async {
       var user = await reader.builder<User>(User());

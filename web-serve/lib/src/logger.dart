@@ -11,7 +11,7 @@ class Logger implements MiddlewareStruct {
 
   String _buildMessage(String path, String method) {
     var now = DateTime.now().toString();
-    return "[${now.substring(0, now.length - 7)}]: $method -> $path";
+    return "[${now.substring(0, now.lastIndexOf("."))}]: $method -> $path";
   }
 
   void log(String message) {
