@@ -19,18 +19,24 @@ childProcess(SendPort p) async {
 }
 
 void main() async {
+  var i = 0;
 
-  var p = ReceivePort();
+  while (i < 1000) {
+    var p = ReceivePort();
+  
+    Isolate.spawn(childProcess, p.sendPort);
 
-   await Isolate.spawn(childProcess, p.sendPort);
-  p.listen((i) {
-    print("main message: $i");
+    p.listen((i) {
+      print("main message: $i");
 
-    if (i == 18) {
-      p.close();
-      // io.kill();
-    }
-  });
+      if (i == 18) {
+        p.close();
+        // io.kill();
+      }
+    });
+
+    i++;
+  }
 
   print("main end");
 }
