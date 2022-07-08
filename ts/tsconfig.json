@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "typeRoots": [
+      "typedef.d.ts"
+    ]
+  },
+  // "include": ["./*.ts"]
+}
