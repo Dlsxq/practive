@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<style>
+  .div2 {
+    border: 10px solid red;
+  }
+
+
+  .output {
+    height: 100vh;
+    width: 100vw;
+    overflow: scroll;
+  }
+</style>
+
+<body>
+
+  <div class="output div2">
+
+  </div>
+  <div class="div2">
+    121
+<img src="https://tse1-mm.cn.bing.net/th/id/OIP-C.8olSEek1RZjSQDgPizhxEAHaJ3?pid=ImgDet&rs=1" alt="">
+
+  </div>
+
+
+</body>
+
+
+
+<script>
+
+  globalThis.addEventListener("message", e => {
+    console.log(e.data);
+
+    if (e.data === "print") {
+      print();
+      return;
+    }
+
+    document.querySelector(".output").innerHTML = e.data;
+
+  });
+</script>
+
+
+</html>
