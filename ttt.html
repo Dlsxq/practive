@@ -1,0 +1,22 @@
+<button class="btn">Load</button>
+
+
+<script>
+
+  let globalRecord = null;
+  let index = 1;
+
+  document.querySelector(".btn")
+    .addEventListener("click", () => {
+      let script = document.createElement("script");
+
+      script.onload = () => {
+        console.log(globalRecord.foo);
+      };
+
+      script.src = "/js?index=" + index++;
+
+      document.head.appendChild(script);
+    });
+
+</script>
