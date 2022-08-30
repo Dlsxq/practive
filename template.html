@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zn_CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor</title>
+  <style>
+    html,
+    body {
+      font-size: 16px;
+    }
+
+    .operation {
+      margin: 14px 0;
+      text-align: center;
+    }
+
+    .operation>button {
+      cursor: pointer;
+      border: 2px solid rgb(59, 127, 217);
+      padding: 8px 16px;
+      background-color: #fff;
+      color: black;
+    }
+
+    .operation>button:focus {
+      outline: 2px solid rgb(59, 127, 217);
+    }
+
+    .operation>button+button {
+      margin-left: 10px;
+    }
+
+    .viewer:focus {
+      outline: 4px solid rgba(64, 64, 210, 0.6);
+      border: none;
+    }
+
+    .viewer {
+      min-height: 60vh;
+      box-sizing: border-box;
+      border: 1px solid rgb(121, 111, 111);
+      margin: 2em;
+      padding: 0.4em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="operation"><button class="save" title="保存">Record</button><button title="加载"
+      class="load">Load</button><button title="单个" class="detail">Details</button><button title="清空"
+      class="clear">Clean</button>
+  </div>
+  <button class="timeout">timeout</button>
+  <section class="viewer" contenteditable="true">
+
+  </section>
+</body>
+
+</html>
+<script>
+  const load = document.querySelector(".load");
+  const record = document.querySelector(".save");
+  const detail = document.querySelector(".detail");
+  const clear = document.querySelector(".clear");
+  const timeout = document.querySelector(".timeout");
+  const viewer = document.querySelector(".viewer");
+
+  let i = 1;
+  timeout.addEventListener("click", () => {
+   let e = 3;
+   while (e -- > 0) {
+    fetch("/detail", { method: "post", body: "index=" + i++ })
+      .then(rs => rs.json())
+      .then(rs => {
+        console.log(rs);
+      });
+   }
+   
+  });
+  const recordMap = new Map();
+
+  record.addEventListener("click", () => {
+    let text = viewer.innerHTML;
+
+    if (text.trim().length === 0) {
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append("content", text);
+    fd.append("date", new Date().toLocaleString().replaceAll("/", "-"));
+
+    fetch("/save-record", {
+      method: "post",
+      body: fd
+    })
+      .then(rs => rs.json())
+      .then(rs => {
+        console.log(rs);
+        if (rs.ok) {
+          let t = record.textContent;
+          record.textContent = "保存成功";
+          setTimeout(() => {
+            record.textContent = t;
+          }, 1500)
+        }
+      })
+      .catch(exx => {
+        console.log(exx);
+        confirm("保存失败");
+      });
+  });
+
+  const getRecordAll = () => {
+    return fetch("/record-list")
+      .then(rs => rs.text())
+      .then(rs => {
+        return rs;
+      })
+      .catch(exx => {
+        console.log(exx);
+        confirm("保存失败");
+      });
+  };
+
+  detail.addEventListener("click", () => {
+    let fileName = viewer.textContent.replace(/^\s*/, "").replace(/\s*$/, "");
+    fetch("/detail", {
+      method: "post",
+    })
+      .then(rs => rs.text())
+      .then(rs => {
+        console.log(rs);
+      });
+
+  });
+
+  load.addEventListener("click", () => {
+    getRecordAll().then(record => {
+      viewer.innerText = JSON.stringify(JSON.parse(record), null, 8);
+    });
+  });
+
+  clear.addEventListener("click", () => {
+    viewer.textContent = "";
+  });
+
+</script>

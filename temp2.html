@@ -1,0 +1,74 @@
+<button class="t2">Transform</button>
+<div contenteditable="true" class="input output" style="height: 50vh; width: 100vw; border: 1px solid red;margin-top: 50px;">
+
+</div>
+
+
+
+<script>
+  const isRawHtml = (htmlString) => { const rawHtmlRe = /^<[a-zd]+s*(style=)?>/i; return rawHtmlRe.test(htmlString); };
+  const isHtmlSerialize = (htmlString) => { const rawHtmlRe = /^&lt;s*[a-zd]+s*(style=)?/i; return rawHtmlRe.test(htmlString); };
+  class HtmlSerializer {
+    serializeToString(input) { return HtmlSerializer.xmls.serializeToString(input); } /**     * 用于将><转换为转移字符     *     *      *     * @param input 一个dom结点、Element、String     */
+    encodeHTML(input) {
+      let inputStr = input; if (typeof inputStr !== "string") {
+        inputStr = this.serializeToString(inputStr);
+      } let preData = HtmlSerializer.text.data; let preHtml = HtmlSerializer.div.innerHTML; try {
+        HtmlSerializer.text.data = inputStr;
+        HtmlSerializer.div.append(HtmlSerializer.text);
+        let nodeStr = HtmlSerializer.div.innerHTML;
+        return nodeStr;
+      }
+      catch (exx) {
+        console.log(exx);
+        return null;
+      }
+      finally {
+        HtmlSerializer.text.data = preData;
+        HtmlSerializer.div.innerHTML = preHtml;
+      }
+    }
+    decodeToHtmlString(input) {
+      let bodyText = input; if (isHtmlSerialize(input)) {
+        let doc = HtmlSerializer.dom.parseFromString(input, "text/html");
+        bodyText = doc.body.innerText;
+      } return bodyText;
+    }
+    decodeHTML(input) {
+      let bodyText = this.decodeToHtmlString(input);
+      let docNodeContainer = HtmlSerializer.dom.parseFromString(bodyText, "text/html");
+      let bodyNode = docNodeContainer.body;
+      let frag = document.createDocumentFragment();
+      while (bodyNode.firstChild !== null) {
+        frag.append(bodyNode.firstChild);
+      }
+      return frag;
+    }
+  }
+
+  HtmlSerializer.isRawHtml = isRawHtml;
+  HtmlSerializer.isHtmlSerialize = isHtmlSerialize;
+  HtmlSerializer.xmls = new XMLSerializer();
+  HtmlSerializer.dom = new DOMParser();
+  HtmlSerializer.div = document.createElement("div");
+  HtmlSerializer.text = document.createTextNode("");
+
+
+  const htm2l = new HtmlSerializer();
+
+
+  const input = document.querySelector(".input");
+  const output = document.querySelector(".output");
+  const ts = document.querySelector(".t2");
+
+  ts.addEventListener("click", () => {
+    console.log(input.innerText);
+    let t = htm2l.decodeHTML(input.innerText);
+    console.log(t);
+
+    output.innerHTML = ``;
+    output.append(t);
+
+  });
+
+</script>

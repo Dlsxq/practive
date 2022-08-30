@@ -57,9 +57,6 @@ class HttpWriter {
   // }
 
   write(Object data) {
-    if (this._writed) {
-      return;
-    }
     this._writed = true;
     if (this._responseBodyCache is Set) {
       (this._responseBodyCache as Set).add(data);
@@ -69,7 +66,9 @@ class HttpWriter {
     if (this._responseBodyCache == null) {
       this._responseBodyCache = data;
     } else {
-      this._responseBodyCache = <dynamic>{this._responseBodyCache};
+      var s = Set();
+      s.add(this._responseBodyCache);
+      this._responseBodyCache = s;
     }
   }
 
@@ -106,8 +105,17 @@ class HttpWriter {
     if (this.finished) {
       return;
     }
+
     this.finished = true;
-    this._response..statusCode = this._statusCode;
+    // 404
+    if (!this._writed) {
+      this._response.statusCode = HttpStatus.notFound;
+      this._response.headers.contentType = ContentType.html;
+      this._writeBody("<h1>404</h1>");
+      return;
+    }
+
+    this._response.statusCode = this._statusCode;
 
     if (this._responseBodyCache == null) {
       this._response.headers.removeAll(HttpHeaders.contentTypeHeader);
